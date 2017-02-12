@@ -72,7 +72,6 @@ def find_ngrams(lst_str, threshold=0.1, minimum=5):
 
 def get_result(nouns, known=None):
     """
-
     :param known:
     :param nouns:
     :return:

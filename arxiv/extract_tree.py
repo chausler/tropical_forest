@@ -1,7 +1,7 @@
 from topic_chain import *
 
 # this code only works, if the max_incoming is set to 2 and max_outgoing=1, threshold can be adjusted
-
+# as the topic_chain will be modelled as a binary tree
 
 class Node:
     def __init__(self, key, left=None, right=None, parent=None):
@@ -46,6 +46,7 @@ class Node:
 
 def find_root(conns, ts, ti):
     """
+     the root is the final topic of a topic chain and root node of the binary tree
     :param conns:
     :param start:
     :return: (topic index, level)
@@ -62,12 +63,21 @@ def find_root(conns, ts, ti):
     return i, cur
 
 
-def depth(node):
-    if not node: return -1
-    return max(depth(node.left), depth(node.right)) + 1
+# def depth(node):
+#     """
+#     :param node:
+#     :return:
+#     """
+#     if not node: return -1
+#     return max(depth(node.left), depth(node.right)) + 1
 
 
 def _get_tree(root, root_topic):
+    """
+    :param root:
+    :param root_topic:
+    :return:
+    """
     prevs = root_topic.prev()
     if len(prevs) > 0:
         if len(prevs) > 1:
@@ -81,12 +91,22 @@ def _get_tree(root, root_topic):
 
 
 def get_tree(root_topic):
+    """
+    construct a binary tree from the root topic
+    :param root_topic: DynamicTopic
+    :return:
+    """
     root = Node([root_topic])
     _get_tree(root, root_topic)
     return root
 
 
 def get_size(tree):
+    """
+    compute the total number of nodes in the tree
+    :param tree:
+    :return:
+    """
     if not tree:
         return 0
     return get_size(tree.left) + get_size(tree.right) + 1
@@ -95,17 +115,31 @@ def get_size(tree):
 def _in_order(tree, lst):
     if tree:
         _in_order(tree.left, lst)
-        lst.append(list(reversed(tree.key)))
+        try:
+            lst.append(list(reversed(tree.key)))
+        except:
+            print("::",tree.key,"::")
         _in_order(tree.right, lst)
 
 
 def in_order(tree):
+    """
+    perform in-order traversal
+    :param tree:
+    :return:
+    """
     lst = []
     _in_order(tree, lst)
     return lst
 
 
 def _get_topics(tree, lst):
+    """
+
+    :param tree:
+    :param lst:
+    :return:
+    """
     if tree:
         topic = tree.key[0]
         t = (topic.ts, topic.ti)
@@ -115,12 +149,23 @@ def _get_topics(tree, lst):
 
 
 def get_topics(tree):
+    """
+    get all dynamic_topic from a tree
+    :param tree:
+    :return:
+    """
     lst = []
     _get_topics(tree, lst)
     return lst
 
 
 def get_forest(topic_chain):
+    """
+    compute all trees in a TopicChain object
+    :param topic_chain:
+    :return: all trees
+    """
+
     conns = topic_chain.table
     time_len = len(conns)
     index_len = len(conns[0])
@@ -148,6 +193,11 @@ def get_forest(topic_chain):
 
 
 def squeeze(tree):
+    """
+    squeeze nodes with only one child into supernodes
+    :param tree:
+    :return: squeezed tree
+    """
     if tree:
         if not (tree.left and tree.right):
             if tree.left:
@@ -175,13 +225,16 @@ def squeeze(tree):
         if tree.left and tree.right:
             squeeze(tree.left)
             squeeze(tree.right)
-
     return tree
 
 
-
-
 def extract(tc, n, verbose=False):
+    """
+    :param tc: topic_chain
+    :param n: n of trees will be returned
+    :param verbose: print out the squeezed trees
+    :return: top n biggest trees
+    """
     forest = get_forest(tc)
     top_n = sorted(forest, key=get_size, reverse=True)[:n]
     top_n = [squeeze(x) for x in top_n]
@@ -189,8 +242,6 @@ def extract(tc, n, verbose=False):
         for t in top_n:
             print(t)
             print('*' * 200)
-
-
     top_n_ordered = [in_order(x) for x in top_n]
     return top_n_ordered
 

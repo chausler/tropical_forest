@@ -15,6 +15,6 @@ if __name__ == '__main__':
     freqs = []
     for inference in inferences:
         topic_count = Counter(inference)
-        topic_count = [topic_count[i] for i in range(30)]
+        topic_count = [topic_count[i] for i in sorted(topic_count.keys())]
         freqs.append(topic_count)
     json.dump(freqs, open("topic_freqs.json", "w"))
