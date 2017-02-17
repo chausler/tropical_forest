@@ -8,7 +8,7 @@ from gensim.models.wrappers.ldamallet import LdaMallet
 from gensim.corpora import Dictionary
 
 MALLET_PATH='/usr/local/Cellar/mallet/2.0.7/bin/mallet'
-DATA_PATH = '/Users/ranxiao/Desktop/data/arXiv'
+DATA_PATH = '../data/arXiv'
 
 if __name__ == '__main__':
     inferences = json.load(open("topic_inference.json"))
